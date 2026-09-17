@@ -7,6 +7,8 @@
 [![dsh.so security](https://www.dsh.so/badge/tydora.svg)](https://www.dsh.so/artifact/tydora)
 [![dsh.so install](https://www.dsh.so/badge/install/tydora.svg)](https://www.dsh.so/artifact/tydora)
 
+English | [简体中文](README_ZH.md)
+
 ![image.png](/website/assets/image-20260910-223717.png)
 
 ---
