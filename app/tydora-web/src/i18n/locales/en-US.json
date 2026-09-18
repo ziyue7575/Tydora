@@ -902,6 +902,8 @@
       "moveTo": "Move to...",
       "delete": "Delete",
       "copyPath": "Copy File Path",
+      "copyRelativePath": "Copy Relative Path",
+      "copyAbsolutePath": "Copy Absolute Path",
       "openLocation": "Open File Location",
       "openInTerminal": "Open in Terminal"
     },

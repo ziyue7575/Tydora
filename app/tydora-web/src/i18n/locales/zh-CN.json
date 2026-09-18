@@ -901,6 +901,8 @@
       "moveTo": "移动到...",
       "delete": "删除",
       "copyPath": "复制文件路径",
+      "copyRelativePath": "复制相对路径",
+      "copyAbsolutePath": "复制绝对路径",
       "openLocation": "打开文件位置",
       "openInTerminal": "在终端打开"
     },
