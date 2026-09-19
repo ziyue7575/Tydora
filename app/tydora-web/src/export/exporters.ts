@@ -379,6 +379,41 @@ html, body { margin: 0; height: 100%; overflow-y: auto; }
 .export-page .callout-title-bug       { color: #cf222e; }
 .export-page .callout-title-quote     { color: #9d9d9d; }
 .export-page .callout-title-faq       { color: #0969da; }
+
+/* ── Frontmatter / 元数据块 ── */
+/* 覆盖通用的 :not(pre) > code 行内代码样式，按编辑器中的 METADATA 卡片展示 */
+.export-page .frontmatter-node,
+.export-page [data-type="frontmatter"] {
+  background: var(--bg-secondary, #f5f5f5);
+  border: 1px solid var(--border, #e0e0e0);
+  border-radius: 8px;
+  margin: 1em 0;
+  font-size: 0.85em;
+}
+.export-page .frontmatter-label {
+  padding: 4px 12px;
+  font-size: 0.8em;
+  font-weight: 500;
+  color: var(--text-secondary, #999);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border, #e0e0e0);
+}
+.export-page .frontmatter-node .frontmatter-content,
+.export-page [data-type="frontmatter"] > code {
+  display: block;
+  margin: 0;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  font-family: "Fira Code", "Consolas", monospace;
+  font-size: inherit;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--text-primary, #1f2330);
+}
 @media print {
   .export-page { padding: 0; }
 }
