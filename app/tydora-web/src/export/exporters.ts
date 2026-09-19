@@ -63,7 +63,7 @@ export function buildHtmlDoc(
   css: string,
   themeName: string,
   title: string,
-  options?: { exportShadow?: boolean },
+  options?: { exportShadow?: boolean; pageBackground?: string },
 ): string {
   // 安全清理：移除所有 <script> 标签和内联事件处理器，避免在 iframe srcDoc /
   // 导出的 HTML 中触发 "Unexpected end of input" 及 "Blocked script execution" 等错误。
@@ -99,6 +99,9 @@ html, body { background: var(--bg-secondary, #f5f5f5); }
 </style>`
     : "";
 
+  // 页面底色：默认跟随主题；PDF 预览时会传入白色以与实际导出一致
+  const pageBackground = options?.pageBackground ?? "var(--bg-primary, #ffffff)";
+
   return `<!DOCTYPE html>
 <html data-theme="${escapeHtml(themeName)}" lang="zh-CN">
 <head>
@@ -116,7 +119,7 @@ html, body { margin: 0; height: 100%; overflow-y: auto; }
   margin: 0 auto;
   padding: 48px;
   box-sizing: border-box;
-  background: var(--bg-primary, #ffffff);
+  background: ${pageBackground};
   color: var(--text-primary, #1f2330);
 }
 .export-page p {
