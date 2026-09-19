@@ -925,7 +925,8 @@
       "removeConfirmTitle": "移除仓库",
       "removeConfirmMessage": "确定要移除仓库 \"{{name}}\" 吗？\n此操作不会删除本地文件。",
       "publishWebsite": "发布为网站",
-      "openNewVault": "打开新仓库"
+      "openNewVault": "打开新仓库",
+      "temporary": "临时"
     },
     "empty": {
       "noVault": "尚未打开仓库",

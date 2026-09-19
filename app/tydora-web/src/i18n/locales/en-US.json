@@ -926,7 +926,8 @@
       "removeConfirmTitle": "Remove Vault",
       "removeConfirmMessage": "Remove vault \"{{name}}\"?\nThis will not delete local files.",
       "publishWebsite": "Publish as Website",
-      "openNewVault": "Open New Vault"
+      "openNewVault": "Open New Vault",
+      "temporary": "Temporary"
     },
     "empty": {
       "noVault": "No vault opened",

@@ -65,6 +65,7 @@ import { DOMParser as ProseMirrorDOMParser, Fragment, Slice } from "@tiptap/pm/m
 import type { Node as PMNode } from "@tiptap/pm/model";
 import { ContextMenu } from "./ContextMenu";
 import { LinkDialog } from "./LinkDialog";
+import { findLinkRangeAt } from "./link-source";
 import { MathDialog } from "./MathDialog";
 import type { ThemeName } from "../themes";
 import type { ImageSettings } from "../services";
@@ -2000,25 +2001,17 @@ const TipTapEditor = forwardRef<EditorHandle, TipTapEditorProps>(
         }
 
         const { doc } = editor.state;
-        let from = -1;
-        let to = -1;
-        let linkHref = "";
 
-        // 在点击位置附近查找带 link mark 的文本节点
-        doc.nodesBetween(pos, Math.min(pos + 1000, doc.content.size), (node, nodePos) => {
-          if (node.isText) {
-            const linkMark = node.marks.find((m: Record<string, any>) => m.type.name === "link");
-            if (linkMark) {
-              from = nodePos;
-              to = nodePos + node.nodeSize;
-              linkHref = linkMark.attrs.href as string;
-              return false;
-            }
-          }
-          return true;
-        });
+        // 在点击位置查找包含 pos 的带 link mark 的文本节点
+        // （不要在这里内联 nodesBetween + return false —— 它无法提前终止遍历，
+        //  多链接时会不断覆盖结果、最终命中最后一个链接，详见 link-source.ts）
+        const linkRange = findLinkRangeAt(doc, pos);
 
-        if (from === -1 || !linkHref) return;
+        if (!linkRange) return;
+
+        const from = linkRange.from;
+        const to = linkRange.to;
+        const linkHref = linkRange.href;
 
         const text = doc.textBetween(from, to);
         const md = `[${text}](${linkHref})`;

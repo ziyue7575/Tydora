@@ -67,7 +67,7 @@ export async function buildExportArtifact(format: ExportFormat, ctx: ExportConte
   const { buildHtmlDoc, buildWechatHtml, exportPdfBytes, renderToPng } = await import("./exporters");
 
   // Word 导出固定使用浅色主题，避免暗色主题下文字/背景异常
-  const { container, cleanup } = prepareExportElement(raw, ctx.themeName, format === "docx");
+  const { container, cleanup } = prepareExportElement(raw, ctx.themeName, format === "docx", ctx.title);
   try {
     // 内联本地/远程图片，使产物自包含
     await inlineImages(raw);

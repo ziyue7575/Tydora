@@ -68,6 +68,8 @@ const TAB_DRAG_THRESHOLD = 4;
 export interface VaultInfo {
   name: string;
   path: string;
+  /** 临时仓库：双击打开仓库外的 .md 文件时挂载其所在目录，不持久化（重启后不保留） */
+  temporary?: boolean;
 }
 
 interface TreeNode {
@@ -3360,6 +3362,9 @@ function VaultSwitcher({
           }}
         >
           {activeVault ? activeVault.name : t("sidebar.vault.unselected")}
+          {activeVault?.temporary && (
+            <span className="vault-temp-badge">{t("sidebar.vault.temporary")}</span>
+          )}
         </span>
         <button
           className="vault-menu-btn"
@@ -3389,7 +3394,12 @@ function VaultSwitcher({
                   setMenuOpen(false);
                 }}
               >
-                <span className="vault-menu-name">{vault.name}</span>
+                <span className="vault-menu-name">
+                  {vault.name}
+                  {vault.temporary && (
+                    <span className="vault-temp-badge">{t("sidebar.vault.temporary")}</span>
+                  )}
+                </span>
                 <button
                   className="vault-menu-remove-btn"
                   title={t("sidebar.vault.remove")}
