@@ -114,6 +114,21 @@ ${css}
 </style>
 <style>
 html, body { margin: 0; height: 100%; overflow-y: auto; }
+/* 滚动条与主题底色融合：轨道透明，避免带底色的主题下右侧出现白色竖条。
+   html 和 body 都可能成为滚动容器，必须两者都覆盖，否则另一方的默认白色轨道会露出来 */
+html, body {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border, rgba(0, 0, 0, 0.22)) transparent;
+}
+html::-webkit-scrollbar, body::-webkit-scrollbar { width: 10px; }
+html::-webkit-scrollbar-track, body::-webkit-scrollbar-track { background: transparent; }
+html::-webkit-scrollbar-thumb, body::-webkit-scrollbar-thumb {
+  background: var(--border, rgba(0, 0, 0, 0.22));
+  border-radius: 5px;
+}
+html::-webkit-scrollbar-thumb:hover, body::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary, rgba(0, 0, 0, 0.35));
+}
 .export-page {
   max-width: 1024px;
   margin: 0 auto;
