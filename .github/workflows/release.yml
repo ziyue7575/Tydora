@@ -1,5 +1,10 @@
 name: Release
 
+# 实现计划：
+# 1. 有更新签名密钥时保持原有签名构建
+# 2. fork 未配置密钥时关闭 updater 产物，仍正常生成各平台安装包
+# 3. 继续复用项目脚本传入 Tauri 主配置文件
+
 # 资源排序说明：
 # GitHub Releases UI 按文件名字母序排列资源，无法通过上传顺序控制。
 # 本工作流通过给文件名加数字前缀实现 Win → macOS → Linux 的稳定分组排序：
@@ -88,9 +93,11 @@ jobs:
           # 跳过 AppleScript/Finder 步骤（该步骤在 CI 上常因 window server 无响应而超时失败）
           TAURI_BUNDLER_DMG_IGNORE_CI: false
         with:
-          # 2026-09-09 重构后：tauri.conf.json 在 app/tydora-desktop/，必须显式传
-          configPath: app/tydora-desktop/tauri.conf.json
-          args: ${{ matrix.args }}
+          # run-tauri.mjs 已传入主配置；fork 未配置私钥时再合并无签名配置，
+          # 避免 NSIS/AppImage 构建完成后因空私钥解析失败。
+          args: >-
+            ${{ matrix.args }}
+            ${{ secrets.TAURI_SIGNING_PRIVATE_KEY == '' && '--config app/tydora-desktop/tauri.unsigned.conf.json' || '' }}
 
       # Windows: 额外生成便携版（免安装）zip，内容为 release 构建出的主程序
       # 注意：Tauri v2 在 target/release 下保留 cargo bin 名（tydora-desktop.exe），
@@ -156,6 +163,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      HAS_TAURI_SIGNING_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY != '' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -257,6 +266,7 @@ jobs:
 
       # 重新生成 latest.json：url 指向前缀化后的资源名，signature 取自 .sig 文件内容
       - name: Generate updater manifest (latest.json)
+        if: env.HAS_TAURI_SIGNING_KEY == 'true'
         shell: bash
         env:
           VERSION: ${{ steps.meta.outputs.version }}
