@@ -63,7 +63,7 @@ export function buildHtmlDoc(
   css: string,
   themeName: string,
   title: string,
-  options?: { exportShadow?: boolean },
+  options?: { exportShadow?: boolean; pageBackground?: string },
 ): string {
   // 安全清理：移除所有 <script> 标签和内联事件处理器，避免在 iframe srcDoc /
   // 导出的 HTML 中触发 "Unexpected end of input" 及 "Blocked script execution" 等错误。
@@ -99,6 +99,9 @@ html, body { background: var(--bg-secondary, #f5f5f5); }
 </style>`
     : "";
 
+  // 页面底色：默认跟随主题；PDF 预览时会传入白色以与实际导出一致
+  const pageBackground = options?.pageBackground ?? "var(--bg-primary, #ffffff)";
+
   return `<!DOCTYPE html>
 <html data-theme="${escapeHtml(themeName)}" lang="zh-CN">
 <head>
@@ -111,12 +114,27 @@ ${css}
 </style>
 <style>
 html, body { margin: 0; height: 100%; overflow-y: auto; }
+/* 滚动条与主题底色融合：轨道透明，避免带底色的主题下右侧出现白色竖条。
+   html 和 body 都可能成为滚动容器，必须两者都覆盖，否则另一方的默认白色轨道会露出来 */
+html, body {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border, rgba(0, 0, 0, 0.22)) transparent;
+}
+html::-webkit-scrollbar, body::-webkit-scrollbar { width: 10px; }
+html::-webkit-scrollbar-track, body::-webkit-scrollbar-track { background: transparent; }
+html::-webkit-scrollbar-thumb, body::-webkit-scrollbar-thumb {
+  background: var(--border, rgba(0, 0, 0, 0.22));
+  border-radius: 5px;
+}
+html::-webkit-scrollbar-thumb:hover, body::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary, rgba(0, 0, 0, 0.35));
+}
 .export-page {
   max-width: 1024px;
   margin: 0 auto;
   padding: 48px;
   box-sizing: border-box;
-  background: var(--bg-primary, #ffffff);
+  background: ${pageBackground};
   color: var(--text-primary, #1f2330);
 }
 .export-page p {
