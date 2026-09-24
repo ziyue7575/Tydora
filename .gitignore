@@ -94,3 +94,5 @@ website/.obsidian/
 
 # AUR 发布脚本的临时工作区（从 aur.archlinux.org clone 下来的包仓库）
 packaging/aur/.aur-work/
+/pnpm-workspace.yaml
+/pnpm-lock.yaml

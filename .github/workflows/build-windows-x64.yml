@@ -1,7 +1,7 @@
 name: Build Windows x64
 
-# 仅构建 Windows x64（NSIS 安装包 + 便携版 zip），不上传 Release。
-# 产物以 workflow artifact 形式提供下载。
+# 仅构建 Windows x64，不上传 Release。
+# NSIS 安装包与便携版 zip 作为两个独立 artifact 分别上传，方便按需下载。
 
 on:
   workflow_dispatch:
@@ -90,10 +90,19 @@ jobs:
           Write-Host "=== Staged assets ==="
           Get-ChildItem 'release-assets' | Select-Object Name, Length
 
-      - name: Upload build artifact
+      # 两个产物分别作为独立 artifact 上传，不要合并到一个 zip
+      - name: Upload setup artifact
         uses: actions/upload-artifact@v4
         with:
-          name: tydora-windows-x64
-          path: release-assets/*
+          name: tydora-windows-x64-setup
+          path: release-assets/*-setup.exe
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Upload portable artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tydora-windows-x64-portable
+          path: release-assets/*_x64_portable.zip
           if-no-files-found: error
           retention-days: 7
