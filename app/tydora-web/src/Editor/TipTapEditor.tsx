@@ -66,6 +66,7 @@ import type { Node as PMNode } from "@tiptap/pm/model";
 import { ContextMenu } from "./ContextMenu";
 import { LinkDialog } from "./LinkDialog";
 import { findLinkRangeAt } from "./link-source";
+import { parseMarkdownLinkSource, positionHasLinkMark } from "./link-restore";
 import { MathDialog } from "./MathDialog";
 import type { ThemeName } from "../themes";
 import type { ImageSettings } from "../services";
@@ -1906,18 +1907,27 @@ const TipTapEditor = forwardRef<EditorHandle, TipTapEditorProps>(
       const range = linkEditRef.current;
       if (!range || !isEditorAlive(editor)) return;
 
-      const { from, to } = range;
+      const { from } = range;
       const doc = editor.state.doc;
-      const actualTo = Math.min(to, doc.content.size);
-      if (actualTo <= from) {
+      if (from >= doc.content.size) {
         linkEditRef.current = null;
         return;
       }
 
-      const text = doc.textBetween(from, actualTo);
-      const m = text.match(/^\[([^\]]*)\]\(([^)]*)\)$/);
-      if (m) {
-        const [, linkText, linkUrl] = m;
+      // 编辑期间若触发了 link input rule，源码可能已自动转回 link mark。
+      // 此时直接清理状态即可，避免按旧 range 删除导致误伤。
+      if (positionHasLinkMark(doc, from)) {
+        linkEditRef.current = null;
+        return;
+      }
+
+      // 从记录的 from 向后扫描当前文档内容，不再依赖 convertLinkToSource
+      // 时的固定 to（用户编辑后文本长度会变化，固定 to 容易截断）。
+      const textFrom = doc.textBetween(from, doc.content.size);
+      const parsed = parseMarkdownLinkSource(textFrom);
+      if (parsed) {
+        const { linkText, linkUrl, length } = parsed;
+        const actualTo = from + length;
         editor
           .chain()
           .command(({ tr }) => {
@@ -2085,7 +2095,10 @@ const TipTapEditor = forwardRef<EditorHandle, TipTapEditorProps>(
               try {
                 const posInfo = coordsView.posAtCoords({ left: e.clientX, top: e.clientY });
                 if (posInfo) {
-                  const { from, to } = linkEditRef.current;
+                  const { from } = linkEditRef.current;
+                  const textFrom = editor.state.doc.textBetween(from, editor.state.doc.content.size);
+                  const parsed = parseMarkdownLinkSource(textFrom);
+                  const to = parsed ? from + parsed.length : from;
                   if (posInfo.pos >= from && posInfo.pos < to) {
                     return; // 点击在编辑区域内，不恢复
                   }
