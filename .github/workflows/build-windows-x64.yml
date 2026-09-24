@@ -5,16 +5,6 @@ name: Build Windows x64
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-      - master
-    paths:
-      - 'app/tydora-desktop/**'
-      - 'app/tydora-web/**'
-      - 'app/tydora-cli/**'
-      - 'package.json'
-      - '.github/workflows/build-windows-x64.yml'
 
 jobs:
   build-windows-x64:
