@@ -1,0 +1,109 @@
+name: Build Windows x64
+
+# 仅构建 Windows x64（NSIS 安装包 + 便携版 zip），不上传 Release。
+# 产物以 workflow artifact 形式提供下载。
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'app/tydora-desktop/**'
+      - 'app/tydora-web/**'
+      - 'app/tydora-cli/**'
+      - 'package.json'
+      - '.github/workflows/build-windows-x64.yml'
+
+jobs:
+  build-windows-x64:
+    runs-on: windows-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './app -> target'
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      # 只构建产物，不创建 Release（不传 tagName，tauri-action 不会上传到 Release）
+      - name: Build Tauri app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          # fork 或未配置私钥时合并无签名配置，避免 NSIS 构建完成后因空私钥解析失败。
+          args: >-
+            ${{ secrets.TAURI_SIGNING_PRIVATE_KEY == '' && '--config app/tydora-desktop/tauri.unsigned.conf.json' || '' }}
+
+      # 额外生成便携版（免安装）zip
+      - name: Package Windows portable zip
+        shell: pwsh
+        run: |
+          $version = (Get-Content VERSION).Trim()
+          $candidates = @('target/release/Tydora.exe', 'target/release/tydora-desktop.exe')
+          $exe = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $exe) {
+            Write-Host 'target/release 下现有的可执行文件：'
+            Get-ChildItem 'target/release' -Filter '*.exe' -ErrorAction SilentlyContinue |
+              Select-Object -ExpandProperty Name
+            throw "Release exe not found. Tried: $($candidates -join ', ')"
+          }
+          New-Item -ItemType Directory -Force -Path 'release-assets' | Out-Null
+          $stage = 'portable-stage'
+          if (Test-Path $stage) { Remove-Item -Recurse -Force $stage }
+          New-Item -ItemType Directory -Force -Path $stage | Out-Null
+          Copy-Item $exe (Join-Path $stage 'Tydora.exe') -Force
+          # 便携版同时携带 CLI sidecar
+          $cliSidecar = 'app/tydora-desktop/binaries/tydora-cli-x86_64-pc-windows-msvc.exe'
+          if (Test-Path $cliSidecar) {
+            Copy-Item $cliSidecar (Join-Path $stage 'tydora-cli.exe') -Force
+            Write-Host "portable zip includes CLI sidecar: $cliSidecar"
+          } else {
+            Write-Warning "CLI sidecar not found at $cliSidecar; portable zip ships without CLI"
+          }
+          $zip = Join-Path 'release-assets' "Tydora_${version}_x64_portable.zip"
+          Compress-Archive -Path (Join-Path $stage '*') -DestinationPath $zip -Force
+          Get-Item $zip | Select-Object FullName, Length
+
+      - name: Stage bundle outputs
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path 'release-assets' | Out-Null
+          Get-ChildItem -Path 'target' -Recurse -File -Include @(
+            '*.exe', '*.exe.sig',
+            '*.msi', '*.msi.sig'
+          ) | Where-Object { $_.FullName -like '*\bundle\*' } | ForEach-Object {
+            Copy-Item $_.FullName -Destination 'release-assets' -Force
+          }
+          Write-Host "=== Staged assets ==="
+          Get-ChildItem 'release-assets' | Select-Object Name, Length
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tydora-windows-x64
+          path: release-assets/*
+          if-no-files-found: error
+          retention-days: 7
