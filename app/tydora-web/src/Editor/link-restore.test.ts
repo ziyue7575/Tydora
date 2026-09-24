@@ -8,15 +8,6 @@ import { parseMarkdownLinkSource } from "./link-restore.ts";
 
 let passed = 0;
 let failed = 0;
-function assertEqual(actual: unknown, expected: unknown, label: string): void {
-  if (actual === expected) {
-    passed++;
-    console.log(`  ✓ ${label}`);
-  } else {
-    failed++;
-    console.error(`  ✗ ${label}: 期望 ${String(expected)}，实际 ${String(actual)}`);
-  }
-}
 
 function assertObject(
   actual: ReturnType<typeof parseMarkdownLinkSource>,
