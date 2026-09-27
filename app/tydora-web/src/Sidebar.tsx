@@ -814,6 +814,7 @@ interface FileActions {
   onDelete: () => void;
   onCopyPath: () => void;
   onCopyRelativePath: () => void;
+  onCopyRelativeToCurrentPath: () => void;
   onOpenLocation: () => void;
   onOpenTerminal: () => void;
   onNewWindow: () => void;
@@ -943,7 +944,7 @@ function isMarkdownFileName(name: string): boolean {
 function getFileMenuItems(
   actions: FileActions,
   t: (key: string) => string,
-  opts: { canOpenInNewPanel: boolean; targetIsMarkdown: boolean },
+  opts: { canOpenInNewPanel: boolean; targetIsMarkdown: boolean; currentFilePath: string | null },
 ): ContextMenuItem[] {
   return [
     {
@@ -976,6 +977,7 @@ function getFileMenuItems(
       separator: true,
       children: [
         { label: t("sidebar.contextMenu.copyRelativePath"), onClick: actions.onCopyRelativePath },
+        { label: t("sidebar.contextMenu.copyRelativeToCurrentPath"), onClick: actions.onCopyRelativeToCurrentPath, disabled: !opts.currentFilePath },
         { label: t("sidebar.contextMenu.copyAbsolutePath"), onClick: actions.onCopyPath },
       ],
     },
@@ -1371,6 +1373,15 @@ function TreeNodeComp({
     }).catch(() => { prompt(`${i18n.t("sidebar.file.filePath")}`, relativePath); });
   }, [node, rootPath]);
 
+  // 实现计划：以当前文件的目录为起点，计算右键文件的相对路径并复制。
+  const handleCopyRelativeToCurrentPath = useCallback(() => {
+    if (!activePath) return;
+    const relativePath = computeRelativePath(parentPath(activePath), node.path).replace(/\\/g, "/");
+    navigator.clipboard.writeText(relativePath).then(() => {
+      showToast(i18n.t("sidebar.toast.pathCopied"));
+    }).catch(() => { prompt(`${i18n.t("sidebar.file.filePath")}`, relativePath); });
+  }, [activePath, node.path]);
+
   const handleOpenLocation = useCallback(async () => {
     try {
       await invoke("open_file_location", { filePath: node.path });
@@ -1434,6 +1445,7 @@ function TreeNodeComp({
     onDelete: handleDelete,
     onCopyPath: handleCopyPath,
     onCopyRelativePath: handleCopyRelativePath,
+    onCopyRelativeToCurrentPath: handleCopyRelativeToCurrentPath,
     onOpenLocation: handleOpenLocation,
     onOpenTerminal: handleOpenTerminal,
     onBookmark: () => onBookmark(node.path, node.isDirectory),
@@ -1446,6 +1458,7 @@ function TreeNodeComp({
     : getFileMenuItems(actions, i18n.t, {
         canOpenInNewPanel,
         targetIsMarkdown: isMarkdownFileName(node.name),
+        currentFilePath: activePath,
       });
 
   const handleContextMenu = useCallback((e: React.MouseEvent) => {
@@ -2229,6 +2242,7 @@ function FileTree({
     onDelete: () => {},
     onCopyPath: handleCopyRootPath,
     onCopyRelativePath: handleCopyRootPath,
+    onCopyRelativeToCurrentPath: handleCopyRootPath,
     onOpenLocation: handleOpenRootLocation,
     onOpenTerminal: handleOpenRootTerminal,
     onBookmark: () => {},

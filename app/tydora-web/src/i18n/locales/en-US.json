@@ -902,6 +902,7 @@
       "delete": "Delete",
       "copyPath": "Copy File Path",
       "copyRelativePath": "Copy Relative Path",
+      "copyRelativeToCurrentPath": "Copy Path Relative to Current File",
       "copyAbsolutePath": "Copy Absolute Path",
       "openLocation": "Open File Location",
       "openInTerminal": "Open in Terminal"
