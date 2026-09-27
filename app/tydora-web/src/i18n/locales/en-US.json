@@ -903,6 +903,7 @@
       "copyPath": "Copy File Path",
       "copyRelativePath": "Copy Relative Path",
       "copyRelativeToCurrentPath": "Copy Path Relative to Current File",
+      "insertFileLink": "Insert File Link",
       "copyAbsolutePath": "Copy Absolute Path",
       "openLocation": "Open File Location",
       "openInTerminal": "Open in Terminal"

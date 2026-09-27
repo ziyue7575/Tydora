@@ -374,6 +374,7 @@ export interface CodeMirrorEditorHandle {
   getValue: () => string;
   setValue: (value: string) => void;
   focus: () => void;
+  insertTextAtCursor: (text: string) => void;
   /** 设置选区（Markdown 源码偏移）并将焦点移入编辑器 */
   setSelectionAndFocus: (anchor: number, head: number) => void;
   /**
@@ -729,6 +730,13 @@ const CodeMirrorEditor = forwardRef<CodeMirrorEditorHandle, CodeMirrorEditorProp
       },
       focus: () => {
         viewRef.current?.focus();
+      },
+      insertTextAtCursor: (text: string) => {
+        const view = viewRef.current;
+        if (!view) return;
+        const { from, to } = view.state.selection.main;
+        view.dispatch({ changes: { from, to, insert: text }, selection: { anchor: from + text.length } });
+        view.focus();
       },
       setSelectionAndFocus: (anchor: number, head: number) => {
         const view = viewRef.current;

@@ -902,6 +902,7 @@
       "copyPath": "复制文件路径",
       "copyRelativePath": "复制相对路径",
       "copyRelativeToCurrentPath": "复制相对当前路径",
+      "insertFileLink": "插入文件链接",
       "copyAbsolutePath": "复制绝对路径",
       "openLocation": "打开文件位置",
       "openInTerminal": "在终端打开"

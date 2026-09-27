@@ -418,6 +418,11 @@ function App({ initialFilePath, initialVaultPath }: { initialFilePath?: string |
   const paneHandlesRef = useRef<Record<string, EditorHandle | null>>({});
   const editorHandleRef = useRef<EditorHandle>(null);
 
+  // 实现计划：侧栏生成链接文字与相对路径，交给当前激活编辑器插入。
+  const handleInsertFileLink = useCallback((text: string, path: string) => {
+    editorHandleRef.current?.insertFileLink(text, path);
+  }, []);
+
   // 更新指定缓冲（patch 可为对象或基于旧值的函数）
   const updateBuffer = useCallback((id: string, patch: Partial<FileBuffer> | ((b: FileBuffer) => Partial<FileBuffer>)) => {
     setBuffers((bs) => bs.map((b) => (b.id === id ? { ...b, ...(typeof patch === "function" ? patch(b) : patch) } : b)));
@@ -3692,6 +3697,8 @@ function App({ initialFilePath, initialVaultPath }: { initialFilePath?: string |
           onNewWindow={handleNewWindow}
           onOpenInNewPanel={handleOpenInNewPanel}
           canOpenInNewPanel={!!fileName && isCurrentFileMarkdown && !canvasFilePath && !previewFilePath && !graphViewOpen}
+          onInsertFileLink={handleInsertFileLink}
+          canInsertFileLink={!!fileName && isCurrentFileMarkdown && !canvasFilePath && !previewFilePath && !graphViewOpen && !isActiveTerminal}
           onOpenNewVault={handleOpenNewVault}
           onSelectVault={setActiveVaultIndex}
           collapsed={!sidebarOpen}
@@ -4470,6 +4477,8 @@ function App({ initialFilePath, initialVaultPath }: { initialFilePath?: string |
             onNewWindow={handleNewWindow}
             onOpenInNewPanel={handleOpenInNewPanel}
             canOpenInNewPanel={!!fileName && isCurrentFileMarkdown && !canvasFilePath && !previewFilePath && !graphViewOpen}
+            onInsertFileLink={handleInsertFileLink}
+            canInsertFileLink={!!fileName && isCurrentFileMarkdown && !canvasFilePath && !previewFilePath && !graphViewOpen && !isActiveTerminal}
             onOpenNewVault={handleOpenNewVault}
             onSelectVault={setActiveVaultIndex}
             collapsed={!rightSidebarOpen}

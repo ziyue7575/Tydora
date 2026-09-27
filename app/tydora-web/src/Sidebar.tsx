@@ -130,6 +130,8 @@ interface SidebarProps {
   onNewWindow: (filePath: string) => void;
   onOpenInNewPanel: (filePath: string) => void;
   canOpenInNewPanel: boolean;
+  onInsertFileLink: (text: string, path: string) => void;
+  canInsertFileLink: boolean;
   /** 打开新仓库（目录选择器 → 添加为仓库并激活） */
   onOpenNewVault: () => void;
   onSelectVault: (index: number) => void;
@@ -815,6 +817,7 @@ interface FileActions {
   onCopyPath: () => void;
   onCopyRelativePath: () => void;
   onCopyRelativeToCurrentPath: () => void;
+  onInsertFileLink: () => void;
   onOpenLocation: () => void;
   onOpenTerminal: () => void;
   onNewWindow: () => void;
@@ -944,7 +947,7 @@ function isMarkdownFileName(name: string): boolean {
 function getFileMenuItems(
   actions: FileActions,
   t: (key: string) => string,
-  opts: { canOpenInNewPanel: boolean; targetIsMarkdown: boolean; currentFilePath: string | null },
+  opts: { canOpenInNewPanel: boolean; targetIsMarkdown: boolean; currentFilePath: string | null; canInsertFileLink: boolean },
 ): ContextMenuItem[] {
   return [
     {
@@ -978,6 +981,7 @@ function getFileMenuItems(
       children: [
         { label: t("sidebar.contextMenu.copyRelativePath"), onClick: actions.onCopyRelativePath },
         { label: t("sidebar.contextMenu.copyRelativeToCurrentPath"), onClick: actions.onCopyRelativeToCurrentPath, disabled: !opts.currentFilePath },
+        { label: t("sidebar.contextMenu.insertFileLink"), onClick: actions.onInsertFileLink, disabled: !opts.currentFilePath || !opts.canInsertFileLink },
         { label: t("sidebar.contextMenu.copyAbsolutePath"), onClick: actions.onCopyPath },
       ],
     },
@@ -1215,6 +1219,8 @@ function TreeNodeComp({
   onNewWindow,
   onOpenInNewPanel,
   canOpenInNewPanel,
+  onInsertFileLink,
+  canInsertFileLink,
   onBookmark,
   selectedPaths,
   onMultiSelect,
@@ -1239,6 +1245,8 @@ function TreeNodeComp({
   onNewWindow: (filePath: string) => void;
   onOpenInNewPanel: (filePath: string) => void;
   canOpenInNewPanel: boolean;
+  onInsertFileLink: (text: string, path: string) => void;
+  canInsertFileLink: boolean;
   onBookmark: (filePath: string, isDirectory: boolean) => void;
   selectedPaths: Set<string>;
   onMultiSelect: (paths: string[], mode: 'toggle' | 'range' | 'replace') => void;
@@ -1382,6 +1390,12 @@ function TreeNodeComp({
     }).catch(() => { prompt(`${i18n.t("sidebar.file.filePath")}`, relativePath); });
   }, [activePath, node.path]);
 
+  const handleInsertFileLink = useCallback(() => {
+    if (!activePath || !canInsertFileLink) return;
+    const relativePath = computeRelativePath(parentPath(activePath), node.path).replace(/\\/g, "/");
+    onInsertFileLink(node.name, relativePath);
+  }, [activePath, canInsertFileLink, node.name, node.path, onInsertFileLink]);
+
   const handleOpenLocation = useCallback(async () => {
     try {
       await invoke("open_file_location", { filePath: node.path });
@@ -1446,6 +1460,7 @@ function TreeNodeComp({
     onCopyPath: handleCopyPath,
     onCopyRelativePath: handleCopyRelativePath,
     onCopyRelativeToCurrentPath: handleCopyRelativeToCurrentPath,
+    onInsertFileLink: handleInsertFileLink,
     onOpenLocation: handleOpenLocation,
     onOpenTerminal: handleOpenTerminal,
     onBookmark: () => onBookmark(node.path, node.isDirectory),
@@ -1459,6 +1474,7 @@ function TreeNodeComp({
         canOpenInNewPanel,
         targetIsMarkdown: isMarkdownFileName(node.name),
         currentFilePath: activePath,
+        canInsertFileLink,
       });
 
   const handleContextMenu = useCallback((e: React.MouseEvent) => {
@@ -1543,6 +1559,8 @@ function TreeNodeComp({
               onNewWindow={onNewWindow}
               onOpenInNewPanel={onOpenInNewPanel}
               canOpenInNewPanel={canOpenInNewPanel}
+              onInsertFileLink={onInsertFileLink}
+              canInsertFileLink={canInsertFileLink}
               onBookmark={onBookmark}
               selectedPaths={selectedPaths}
               onMultiSelect={onMultiSelect}
@@ -1590,6 +1608,8 @@ function FileTree({
   onNewWindow,
   onOpenInNewPanel,
   canOpenInNewPanel,
+  onInsertFileLink,
+  canInsertFileLink,
   onScrollToTop,
   hidden,
   onBookmark,
@@ -1602,6 +1622,8 @@ function FileTree({
   onNewWindow: (filePath: string) => void;
   onOpenInNewPanel: (filePath: string) => void;
   canOpenInNewPanel: boolean;
+  onInsertFileLink: (text: string, path: string) => void;
+  canInsertFileLink: boolean;
   onScrollToTop?: () => void;
   hidden?: boolean;
   onBookmark: (filePath: string, isDirectory: boolean) => void;
@@ -2243,6 +2265,7 @@ function FileTree({
     onCopyPath: handleCopyRootPath,
     onCopyRelativePath: handleCopyRootPath,
     onCopyRelativeToCurrentPath: handleCopyRootPath,
+    onInsertFileLink: () => {},
     onOpenLocation: handleOpenRootLocation,
     onOpenTerminal: handleOpenRootTerminal,
     onBookmark: () => {},
@@ -2897,6 +2920,8 @@ function FileTree({
             onNewWindow={onNewWindow}
             onOpenInNewPanel={onOpenInNewPanel}
             canOpenInNewPanel={canOpenInNewPanel}
+            onInsertFileLink={onInsertFileLink}
+            canInsertFileLink={canInsertFileLink}
             onBookmark={onBookmark}
             selectedPaths={selectedPaths}
             onMultiSelect={handleMultiSelect}
@@ -3489,6 +3514,8 @@ export default function Sidebar({
   onNewWindow,
   onOpenInNewPanel,
   canOpenInNewPanel,
+  onInsertFileLink,
+  canInsertFileLink,
   onOpenNewVault,
   onSelectVault,
   collapsed,
@@ -3943,6 +3970,8 @@ export default function Sidebar({
                   onNewWindow={onNewWindow}
                   onOpenInNewPanel={onOpenInNewPanel}
                   canOpenInNewPanel={canOpenInNewPanel}
+                  onInsertFileLink={onInsertFileLink}
+                  canInsertFileLink={canInsertFileLink}
                   onBookmark={onBookmark}
                   showFileIcons={showFileIcons}
                 />

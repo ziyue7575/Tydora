@@ -2326,6 +2326,20 @@ const TipTapEditor = forwardRef<EditorHandle, TipTapEditorProps>(
         if (!isEditorAlive(editor)) return;
         editor.chain().focus().insertContent(text).run();
       },
+      // 实现计划：源码模式插入 Markdown，渲染模式插入带链接标记的文本。
+      insertFileLink: (text: string, path: string) => {
+        if (mode === "sv") {
+          sourceEditorRef.current?.insertTextAtCursor(`[${text}](${path})`);
+          return;
+        }
+        if (!isEditorAlive(editor)) return;
+        editor.chain().focus().command(({ tr }) => {
+          const from = tr.selection.from;
+          tr.insertText(text);
+          tr.addMark(from, from + text.length, editor.schema.marks.link.create({ href: path }));
+          return true;
+        }).run();
+      },
       replaceRangeWithWikiLink: (fromPos: number, noteName: string, heading?: string, display?: string) => {
         if (!isEditorAlive(editor)) return;
         const to = editor.state.selection.from;

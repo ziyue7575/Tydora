@@ -8,6 +8,7 @@ export interface EditorHandle {
   /** 将焦点移入编辑器（IR 模式聚焦 TipTap view，SV 模式聚焦源码编辑器） */
   focus: () => void;
   insertTextAtCursor: (text: string) => void;
+  insertFileLink: (text: string, path: string) => void;
   replaceRangeWithWikiLink: (fromPos: number, noteName: string, heading?: string, display?: string) => void;
   replaceRangeWithTag: (fromPos: number, tag: string) => void;
   resize: () => void;
