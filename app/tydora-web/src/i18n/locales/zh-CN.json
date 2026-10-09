@@ -905,6 +905,7 @@
       "insertFileLink": "插入文件链接",
       "copyAbsolutePath": "复制绝对路径",
       "openLocation": "打开文件位置",
+      "openWithDefault": "使用默认文件打开",
       "openInTerminal": "在终端打开"
     },
     "search": {
@@ -1002,6 +1003,7 @@
       "newCanvasFailed": "新建白板失败:",
       "deleteFailed": "删除失败:",
       "openLocationFailed": "打开文件位置失败:",
+      "openWithDefaultFailed": "使用默认程序打开文件失败:",
       "renameFailed": "重命名失败:",
       "duplicateFailed": "创建副本失败:",
       "duplicateAndCopyFailed": "创建副本并复制到剪切板失败:",

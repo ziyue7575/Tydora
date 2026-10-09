@@ -819,6 +819,7 @@ interface FileActions {
   onCopyRelativeToCurrentPath: () => void;
   onInsertFileLink: () => void;
   onOpenLocation: () => void;
+  onOpenWithDefault: () => void;
   onOpenTerminal: () => void;
   onNewWindow: () => void;
   onBookmark: () => void;
@@ -987,6 +988,7 @@ function getFileMenuItems(
     },
     { label: t("sidebar.contextMenu.openInTerminal"), icon: MENU_ICONS.openTerminal, onClick: actions.onOpenTerminal },
     { label: t("sidebar.contextMenu.openLocation"), icon: MENU_ICONS.openLocation, onClick: actions.onOpenLocation },
+    { label: t("sidebar.contextMenu.openWithDefault"), icon: MENU_ICONS.open, onClick: actions.onOpenWithDefault },
   ];
 }
 
@@ -1404,6 +1406,15 @@ function TreeNodeComp({
     }
   }, [node]);
 
+  // 实现计划：仅在文件菜单添加入口，复用现有系统默认程序打开命令。
+  const handleOpenWithDefault = useCallback(async () => {
+    try {
+      await invoke("open_file", { filePath: node.path });
+    } catch (err) {
+      console.error(i18n.t("sidebar.error.openWithDefaultFailed"), err);
+    }
+  }, [node.path]);
+
   const handleOpenTerminal = useCallback(async () => {
     try {
       await invoke("open_in_terminal", { path: node.path });
@@ -1462,6 +1473,7 @@ function TreeNodeComp({
     onCopyRelativeToCurrentPath: handleCopyRelativeToCurrentPath,
     onInsertFileLink: handleInsertFileLink,
     onOpenLocation: handleOpenLocation,
+    onOpenWithDefault: handleOpenWithDefault,
     onOpenTerminal: handleOpenTerminal,
     onBookmark: () => onBookmark(node.path, node.isDirectory),
     onMoveTo: () => onMoveTo(node.path, node.isDirectory),
@@ -2267,6 +2279,7 @@ function FileTree({
     onCopyRelativeToCurrentPath: handleCopyRootPath,
     onInsertFileLink: () => {},
     onOpenLocation: handleOpenRootLocation,
+    onOpenWithDefault: () => {},
     onOpenTerminal: handleOpenRootTerminal,
     onBookmark: () => {},
     onMoveTo: () => {},

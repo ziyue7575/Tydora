@@ -906,6 +906,7 @@
       "insertFileLink": "Insert File Link",
       "copyAbsolutePath": "Copy Absolute Path",
       "openLocation": "Open File Location",
+      "openWithDefault": "Open with Default App",
       "openInTerminal": "Open in Terminal"
     },
     "search": {
@@ -1002,6 +1003,7 @@
       "newCanvasFailed": "Failed to create canvas:",
       "deleteFailed": "Delete failed:",
       "openLocationFailed": "Failed to open file location:",
+      "openWithDefaultFailed": "Failed to open file with the default app:",
       "renameFailed": "Rename failed:",
       "duplicateFailed": "Failed to duplicate file:",
       "duplicateAndCopyFailed": "Failed to duplicate and copy to clipboard:",
