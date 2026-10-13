@@ -649,6 +649,7 @@
       "relativePath": "基于库的相对路径",
       "absolutePath": "绝对路径",
       "openInExplorer": "打开文件位置",
+      "openWithDefault": "使用默认文件打开",
       "openInTerminal": "在终端打开",
       "mindmap": "思维导图",
       "graph": "关系图谱",
@@ -718,7 +719,8 @@
       "openNewWindowFailed": "打开新窗口失败:",
       "renameFailed": "重命名失败:",
       "openLocationFailed": "打开文件位置失败:",
-      "openTerminalFailed": "打开终端失败:"
+      "openTerminalFailed": "打开终端失败:",
+      "openWithDefaultFailed": "使用默认程序打开文件失败:"
     },
     "command": {
       "categories": {

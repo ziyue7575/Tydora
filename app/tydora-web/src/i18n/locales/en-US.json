@@ -649,6 +649,7 @@
       "relativePath": "Relative Path (from vault)",
       "absolutePath": "Absolute Path",
       "openInExplorer": "Open File Location",
+      "openWithDefault": "Open with Default App",
       "openInTerminal": "Open in Terminal",
       "mindmap": "Mind Map",
       "graph": "Graph",
@@ -718,7 +719,8 @@
       "openNewWindowFailed": "Failed to open new window:",
       "renameFailed": "Rename failed:",
       "openLocationFailed": "Failed to open file location:",
-      "openTerminalFailed": "Failed to open terminal:"
+      "openTerminalFailed": "Failed to open terminal:",
+      "openWithDefaultFailed": "Failed to open file with the default app:"
     },
     "command": {
       "categories": {

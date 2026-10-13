@@ -2648,6 +2648,17 @@ function App({ initialFilePath, initialVaultPath }: { initialFilePath?: string |
     setMoreMenuOpen(false);
   }, [fileName]);
 
+  // 实现计划：用当前文件路径调用现有默认程序打开命令，完成后关闭菜单。
+  const handleOpenWithDefault = useCallback(async () => {
+    if (!fileName) return;
+    try {
+      await invoke("open_file", { filePath: fileName });
+    } catch (err) {
+      console.error(t("app.error.openWithDefaultFailed"), err);
+    }
+    setMoreMenuOpen(false);
+  }, [fileName]);
+
   const handleOpenTerminal = useCallback(async () => {
     // 优先在当前文件所在目录打开终端，无打开文件时用仓库根目录
     const path =
@@ -4113,6 +4124,17 @@ function App({ initialFilePath, initialVaultPath }: { initialFilePath?: string |
                         <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
                       </svg>
                       <span className="editor-topbar-more-menu-label">{t("app.menu.openInExplorer")}</span>
+                    </div>
+                    <div
+                      className={`editor-topbar-more-menu-item${!fileName ? ' disabled' : ''}`}
+                      onClick={() => { if (!fileName) return; handleOpenWithDefault(); }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                        <polyline points="10 17 14 13 10 9" />
+                      </svg>
+                      <span className="editor-topbar-more-menu-label">{t("app.menu.openWithDefault")}</span>
                     </div>
                     <div className="editor-topbar-more-menu-divider" />
                     <div
